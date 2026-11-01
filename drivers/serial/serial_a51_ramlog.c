@@ -16,13 +16,23 @@
  */
 
 #include <dm.h>
+#include <malloc.h>
 #include <serial.h>
+#include <serial_a51_ramlog.h>
 #include <linux/compiler.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 
 #define RAMOOPS_SIG	0x43474244u	/* "DBGC" */
 #define RAMLOG_HDR	12
+#define BOOT_START_UNSET	0xffffffffu
+
+/*
+ * Ring position when u-boot first probed the console (before relocation),
+ * i.e. where this u-boot's own output starts. Initialised so it lives in
+ * .data, which relocation copies with its current value.
+ */
+static u32 boot_start = BOOT_START_UNSET;
 
 struct a51_ramlog_priv {
 	void __iomem *hdr;	/* u32[3]: sig, start, size */
@@ -98,8 +108,36 @@ static int a51_ramlog_probe(struct udevice *dev)
 		flush_dcache_range((unsigned long)priv->hdr,
 				    (unsigned long)priv->hdr + RAMLOG_HDR);
 	}
+	if (boot_start == BOOT_START_UNSET)
+		boot_start = readl(priv->hdr + 4);
 
 	return 0;
+}
+
+char *a51_ramlog_since_boot(void)
+{
+	struct a51_ramlog_priv *priv;
+	struct udevice *dev;
+	u32 start, len, i;
+	char *buf;
+
+	if (boot_start == BOOT_START_UNSET ||
+	    uclass_get_device_by_driver(UCLASS_SERIAL,
+					DM_DRIVER_GET(serial_a51_ramlog), &dev))
+		return NULL;
+
+	priv = dev_get_priv(dev);
+	start = readl(priv->hdr + 4);
+	len = (start + priv->cap - boot_start) % priv->cap;
+	buf = malloc(len + 1);
+	if (!buf)
+		return NULL;
+
+	for (i = 0; i < len; i++)
+		buf[i] = readb(priv->data + (boot_start + i) % priv->cap);
+	buf[len] = '\0';
+
+	return buf;
 }
 
 static const struct dm_serial_ops a51_ramlog_ops = {

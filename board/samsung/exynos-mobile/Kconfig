@@ -22,6 +22,7 @@ config EXYNOS_MOBILE_A51
 	  Log the PMU reset reason (RST_STAT) and the S-BOOT INFORM2/INFORM3
 	  registers at boot, export them as the rst_stat and reset_reason
 	  environment variables, and add the "sboot" command, which resets
-	  into an S-BOOT target (normal, download, upload, recovery).
+	  into an S-BOOT target (normal, download, upload, recovery). Also
+	  sets the DECON trigger so the simple-framebuffer shows on the panel.
 
 endif # TARGET_EXYNOS_MOBILE

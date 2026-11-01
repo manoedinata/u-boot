@@ -4,6 +4,7 @@ config ENV_SOURCE_FILE
 	default "exynos-mobile"
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default 0x80000000 if EXYNOS_MOBILE_A51
 	default TEXT_BASE
 
 config SYS_BOARD
@@ -24,5 +25,52 @@ config EXYNOS_MOBILE_A51
 	  environment variables, and add the "sboot" command, which resets
 	  into an S-BOOT target (normal, download, upload, recovery). Also
 	  sets the DECON trigger so the simple-framebuffer shows on the panel.
+	  With TEXT_BASE 0x80080000 the image header says text_offset 0x80000
+	  like the stock kernel, so S-BOOT does not load u-boot at the DRAM
+	  base (reserved sec-debug-magic/kaslr pages).
+
+config EXYNOS_MOBILE_A51_WDT
+	bool "Arm the A51 CPUCL0 watchdog early"
+	depends on EXYNOS_MOBILE_A51
+	help
+	  Arm WDT_CPUCL0 (resets the SoC on expiry) at the first board hook of
+	  board_init_f. Nothing in u-boot feeds it: the kernel has to take it
+	  over (s3c2410_wdt.tmr_atboot=1), or the device resets. The A51 this
+	  is for has a dead power key, so this is the only way out of a hang.
+
+config EXYNOS_MOBILE_A51_WDT_SEC
+	int "Watchdog timeout in seconds (0 = the longest possible, ~82 s)"
+	depends on EXYNOS_MOBILE_A51_WDT
+	default 0
+
+config EXYNOS_MOBILE_A51_WDT_TEST
+	bool "Watchdog test: wait for the reset instead of booting"
+	depends on EXYNOS_MOBILE_A51_WDT
+
+config EXYNOS_MOBILE_A51_FAILSAFE
+	bool "Boot-loop / watchdog escape into the other S-BOOT slot"
+	depends on EXYNOS_MOBILE_A51_WDT
+	help
+	  For u-boot started by S-BOOT directly. After a watchdog reset of
+	  this slot, or after MAX_BOOTS boots without the kernel's init
+	  clearing the boot counter, reset into the other slot (BOOT <->
+	  RECOVERY). Uses the same scratch words as uniLoader's failsafe, so
+	  do not enable it behind uniLoader: both would count every boot.
+
+config EXYNOS_MOBILE_A51_FAILSAFE_SLOT
+	int "Slot this image is flashed to (0 = BOOT, 1 = RECOVERY)"
+	depends on EXYNOS_MOBILE_A51_FAILSAFE
+	range 0 1
+	default 1
+
+config EXYNOS_MOBILE_A51_FAILSAFE_SCRATCH
+	hex "Scratch address (3 words, must survive a reset and be reserved)"
+	depends on EXYNOS_MOBILE_A51_FAILSAFE
+	default 0xfa70f000
+
+config EXYNOS_MOBILE_A51_FAILSAFE_MAX_BOOTS
+	int "Boots without reaching init before escaping"
+	depends on EXYNOS_MOBILE_A51_FAILSAFE
+	default 3
 
 endif # TARGET_EXYNOS_MOBILE

@@ -26,6 +26,7 @@ obj-$(CONFIG_ESP32_SERIAL) += serial_esp32.o
 obj-$(CONFIG_MCFUART) += serial_mcf.o
 obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P_SERIAL) += serial_s5p.o
+obj-$(CONFIG_A51_RAMLOG_SERIAL) += serial_a51_ramlog.o
 obj-$(CONFIG_MXC_UART) += serial_mxc.o
 obj-$(CONFIG_MESON_SERIAL) += serial_meson.o
 obj-$(CONFIG_INTEL_MID_SERIAL) += serial_intel_mid.o

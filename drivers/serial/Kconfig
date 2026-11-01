@@ -910,6 +910,17 @@ config S5P_SERIAL
 	help
 	  Select this to enable Samsung S5P UART support.
 
+config A51_RAMLOG_SERIAL
+	bool "A51 ramoops console-zone pseudo-console"
+	depends on DM_SERIAL && ARCH_EXYNOS
+	default n
+	help
+	  Write-only console that appends to the same ramoops console-zone
+	  ring buffer (persistent_ram_buffer, "DBGC" signature) uniLoader's
+	  own ramlog uses, so u-boot's log chains onto the loader's and is
+	  readable as /sys/fs/pstore/console-ramoops-0 from whichever kernel
+	  boots next. No UART is wired up on this board.
+
 config S5P4418_PL011_SERIAL
 	bool "Extended PL011 driver for S5P4418"
 	depends on DM_SERIAL && PL01X_SERIAL && ARCH_NEXELL

@@ -3,3 +3,4 @@
 # Copyright (C) 2025 Kaustabh Chakraborty <kauschluss@disroot.org>
 
 obj-y := exynos-mobile.o
+obj-$(CONFIG_EXYNOS_MOBILE_A51) += a51.o

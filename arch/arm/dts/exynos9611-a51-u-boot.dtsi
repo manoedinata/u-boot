@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * u-boot-only additions: a synthetic console node over the same ramoops
+ * console zone uniLoader logs to (0xf9d90000, 512K, matching the real
+ * "ramoops@f9d10000" reservation's console sub-zone in exynos9610.dtsi).
+ * Not a real device, so it stays out of the kernel-facing dts.
+ */
+
+/ {
+	chosen {
+		stdout-path = &ramlog;
+	};
+
+	ramlog: ramlog-console@f9d90000 {
+		compatible = "samsung,a51-ramlog-console";
+		reg = <0x0 0xf9d90000 0x80000>;
+	};
+};

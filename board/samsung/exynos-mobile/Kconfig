@@ -15,4 +15,13 @@ config SYS_CONFIG_NAME
 config SYS_VENDOR
 	default "samsung"
 
+config EXYNOS_MOBILE_A51
+	bool "Samsung Galaxy A51 (Exynos 9611) S-BOOT support"
+	select EVENT
+	help
+	  Log the PMU reset reason (RST_STAT) and the S-BOOT INFORM2/INFORM3
+	  registers at boot, export them as the rst_stat and reset_reason
+	  environment variables, and add the "sboot" command, which resets
+	  into an S-BOOT target (normal, download, upload, recovery).
+
 endif # TARGET_EXYNOS_MOBILE

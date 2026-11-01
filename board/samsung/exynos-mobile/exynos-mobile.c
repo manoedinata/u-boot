@@ -199,6 +199,7 @@ static void exynos_env_setup(void)
 	env_set("fdtfile", buf);
 }
 
+#ifdef CONFIG_EFI_PARTITION_ENTRIES_NUMBERS
 static int exynos_blk_env_setup(void)
 {
 	const char *blk_ifname;
@@ -246,7 +247,9 @@ static int exynos_blk_env_setup(void)
 
 	return 0;
 }
+#endif /* CONFIG_EFI_PARTITION_ENTRIES_NUMBERS */
 
+#ifdef CONFIG_FASTBOOT_BUF_SIZE
 static int exynos_fastboot_setup(void)
 {
 	struct blk_desc *blk_dev;
@@ -293,6 +296,7 @@ static int exynos_fastboot_setup(void)
 
 	return 0;
 }
+#endif /* CONFIG_FASTBOOT_BUF_SIZE */
 
 int board_fdt_blob_setup(void **fdtp)
 {
@@ -360,13 +364,19 @@ int board_init(void)
 
 int misc_init_r(void)
 {
-	int ret;
-
 	exynos_env_setup();
+
+#ifdef CONFIG_EFI_PARTITION_ENTRIES_NUMBERS
+	int ret;
 
 	ret = exynos_blk_env_setup();
 	if (ret)
 		return ret;
+#endif
 
+#ifdef CONFIG_FASTBOOT_BUF_SIZE
 	return exynos_fastboot_setup();
+#else
+	return 0;
+#endif
 }

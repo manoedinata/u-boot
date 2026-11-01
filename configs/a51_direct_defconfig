@@ -1,0 +1,6 @@
+#include <configs/a51_defconfig>
+
+# Started by S-BOOT directly (no uniLoader): escape into the other slot after
+# a watchdog reset or a boot loop. Slot 1 = RECOVERY, escape = BOOT.
+CONFIG_EXYNOS_MOBILE_A51_FAILSAFE=y
+CONFIG_EXYNOS_MOBILE_A51_FAILSAFE_SLOT=1
